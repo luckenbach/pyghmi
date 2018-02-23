@@ -854,7 +854,7 @@ class Command(object):
         self._oem.add_extra_net_configuration(retdata)
         return retdata
 
-    def get_sensor_data(self):
+    def get_sensor_data(self, timeout=None):
         """Get sensor reading objects
 
         Iterates sensor reading objects pertaining to the currently
@@ -862,10 +862,12 @@ class Command(object):
 
         :returns: Iterator of sdr.SensorReading objects
         """
+        if timeout is None:
+            timeout = 30
         if self._sdr is None:
             self._sdr = sdr.SDR(self)
         for sensor in self._sdr.get_sensor_numbers():
-            rsp = self.raw_command(command=0x2d, netfn=4, data=(sensor,))
+            rsp = self.raw_command(command=0x2d, netfn=4, data=(sensor,), timeout=timeout)
             if 'error' in rsp:
                 if rsp['code'] == 203:  # Sensor does not exist, optional dev
                     continue
